@@ -46,6 +46,6 @@ protected:
 	float Damage;
 
 	UPROPERTY(EditDefaultsOnly)
-	float USoundCue* DestroySound;
+	class USoundCue* DestroySound;
 
 };

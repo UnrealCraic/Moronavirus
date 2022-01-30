@@ -6,6 +6,7 @@
 #include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>
 #include <Components/StaticMeshComponent.h>
+#include <Sound/SoundCue.h>
 
 // Sets default values
 AGrindRailObstacle::AGrindRailObstacle()
