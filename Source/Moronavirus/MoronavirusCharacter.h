@@ -19,7 +19,6 @@ class AMoronavirusCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
-
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	class USoundCue* GrindRailSound;
 
@@ -27,7 +26,7 @@ class AMoronavirusCharacter : public ACharacter
 	class UNiagaraSystem* GrindRailEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = Weapons)
-	TSubclassOf<AActor> WeaponClass = nullptr;
+	TSubclassOf<class AMVWeaponActor> WeaponClass = nullptr;
 
 	class UNiagaraComponent* GrindRailEffectComponent;
 
@@ -43,7 +42,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
-
+	class AMVWeaponActor* GetCurrentWeapon() const { return CurrentWeapon; }
 
 protected:
 
@@ -96,5 +95,10 @@ public:
 
 	bool GetIsGrinding() const { return IsGrinding; }
 	void SetIsGrinding(bool val);
+
+private:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+	class AMVWeaponActor* CurrentWeapon = nullptr;
 };
 

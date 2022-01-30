@@ -13,6 +13,7 @@
 #include <Components/AudioComponent.h>
 #include <../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
 #include <Kismet/GameplayStatics.h>
+#include "Weapons/MVWeaponActor.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMoronavirusCharacter
@@ -73,10 +74,10 @@ void AMoronavirusCharacter::BeginPlay()
 
 		const FVector Location = GetActorLocation();
 		const FRotator Rotation = GetActorRotation();
-		if (AActor* SpawnedWeapon = GetWorld()->SpawnActor(WeaponClass, &Location, &Rotation, SpawnParams))
+		if (AMVWeaponActor* SpawnedWeapon = Cast<AMVWeaponActor>(GetWorld()->SpawnActor(WeaponClass, &Location, &Rotation, SpawnParams)))
 		{
-			SpawnedWeapon->SetActorEnableCollision(false);
 			SpawnedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("RightHandWeaponSocket"));
+			CurrentWeapon = SpawnedWeapon;
 		}
 	}
 }
