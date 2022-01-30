@@ -16,6 +16,13 @@ void AMVGameState::OnAllHospitalsDestroyed()
 
 }
 
+void AMVGameState::HandleMatchHasStarted()
+{
+	Super::HandleMatchHasEnded();
+
+	OnGameStarted.Broadcast();
+}
+
 void AMVGameState::HandleMatchHasEnded()
 {
 	Super::HandleMatchHasEnded();
