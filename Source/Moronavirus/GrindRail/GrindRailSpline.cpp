@@ -127,8 +127,9 @@ void AGrindRailSpline::ProcessMovementTimeline(float Value)
 	{
 		CurrentSplineRotator.Yaw += 180;
 	}
-	Cart->SetActorLocation(CurrentSplineLocation);
-	Cart->SetActorRotation(CurrentSplineRotator);
+	CurrentSplineLocation.Z += Character->GetSimpleCollisionHalfHeight();
+	Character->SetActorLocation(CurrentSplineLocation);
+	Character->SetActorRotation(CurrentSplineRotator);
 }
 
 // Called every frame
