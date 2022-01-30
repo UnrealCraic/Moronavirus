@@ -118,6 +118,13 @@ void AGrindRailSpline::BeginPlay()
 
 void AGrindRailSpline::ProcessMovementTimeline(float Value)
 {
+
+	if (!Character || !Character->GetIsGrinding())
+	{
+		MovementTimeline.Stop();
+		return;
+	}
+
 	const float SplineLength = SplineComponent->GetSplineLength();
 
 	FVector CurrentSplineLocation = SplineComponent->GetLocationAtDistanceAlongSpline(Value * SplineLength, ESplineCoordinateSpace::World);
@@ -162,7 +169,11 @@ void AGrindRailSpline::OnEndReached(class UPrimitiveComponent* HitComp, class AA
 	FOnTimelineFloat ProgressFunction;
 	ProgressFunction.BindUFunction(this, TEXT("ProcessMovementTimeline"));
 
+	FOnTimelineEvent OnTimelineFinishedFunction;
+	OnTimelineFinishedFunction.BindUFunction(this, TEXT("OnEndMovementTimeline"));
+
 	MovementTimeline.AddInterpFloat(MovementCurve, ProgressFunction);
+	MovementTimeline.SetTimelineFinishedFunc(OnTimelineFinishedFunction);
 
 	MovementTimeline.SetTimelineLengthMode(TL_LastKeyFrame);
 	MovementTimeline.ReverseFromEnd();
