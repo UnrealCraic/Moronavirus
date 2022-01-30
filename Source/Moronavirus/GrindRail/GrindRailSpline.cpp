@@ -162,7 +162,11 @@ void AGrindRailSpline::OnEndReached(class UPrimitiveComponent* HitComp, class AA
 	FOnTimelineFloat ProgressFunction;
 	ProgressFunction.BindUFunction(this, TEXT("ProcessMovementTimeline"));
 
+	FOnTimelineEvent OnTimelineFinishedFunction;
+	OnTimelineFinishedFunction.BindUFunction(this, TEXT("OnEndMovementTimeline"));
+
 	MovementTimeline.AddInterpFloat(MovementCurve, ProgressFunction);
+	MovementTimeline.SetTimelineFinishedFunc(OnTimelineFinishedFunction);
 
 	MovementTimeline.SetTimelineLengthMode(TL_LastKeyFrame);
 	MovementTimeline.ReverseFromEnd();
