@@ -127,7 +127,7 @@ void AGrindRailSpline::ProcessMovementTimeline(float Value)
 	{
 		CurrentSplineRotator.Yaw += 180;
 	}
-	Cart->SetActorLocation(CurrentSplineLocation,false,nullptr,ETeleportType::TeleportPhysics);
+	Cart->SetActorLocation(CurrentSplineLocation);
 	Cart->SetActorRotation(CurrentSplineRotator);
 }
 
