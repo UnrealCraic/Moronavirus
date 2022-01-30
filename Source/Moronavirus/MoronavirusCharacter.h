@@ -18,6 +18,17 @@ class AMoronavirusCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	class USoundCue* GrindRailSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	class UNiagaraSystem* GrindRailEffect;
+
+	class UNiagaraComponent* GrindRailEffectComponent;
+
+	class UAudioComponent* AudioLoopComponent;
 public:
 	AMoronavirusCharacter();
 
@@ -28,6 +39,8 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
+
+
 
 protected:
 
@@ -58,15 +71,27 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
+	void ActivateGrindEffects(bool Activate);
+
+	virtual void BeginPlay() override;
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
+
+
+protected:
+
+	bool IsGrinding = false;
 
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	bool GetIsGrinding() const { return IsGrinding; }
+	void SetIsGrinding(bool val);
 };
 

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include <Components/SplineMeshComponent.h>
 #include <Engine/DataTable.h>
+#include <Components/TimelineComponent.h>
 
 #include "GrindRailSpline.generated.h"
 
@@ -53,6 +54,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void ProcessMovementTimeline(float Value);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -65,4 +69,34 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spline")
 	TMap<ESplineMeshType, FSplineMeshDetails> SplineMeshMap;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spline")
+	UCurveFloat* MovementCurve;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Spline")
+	class UBoxComponent* StartTriggerComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Spline")
+	class UBoxComponent* EndTriggerComponent;
+
+protected:
+
+	FTimeline MovementTimeline;
+
+	class AMoronavirusCharacter* Character;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> CartClass;
+
+	AActor* Cart;
+
+protected:
+
+	UFUNCTION()
+	void OnEndReached(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnStartReached(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnEndMovementTimeline();
 };

@@ -4,18 +4,30 @@
 #include "GrindRailSpline.h"
 
 #include <Components/SplineComponent.h>
+#include "../MoronavirusCharacter.h"
+#include <Components/BoxComponent.h>
 
 // Sets default values
 AGrindRailSpline::AGrindRailSpline()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	
 	SplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("SplineComponent"));
 	if (SplineComponent)
 	{
+		SplineComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		SplineComponent->SetGenerateOverlapEvents(true);
 		SetRootComponent(SplineComponent);
 	}
+
+	StartTriggerComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("StartTriggerComponent"));
+	StartTriggerComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	StartTriggerComponent->OnComponentBeginOverlap.AddDynamic(this, &AGrindRailSpline::OnStartReached);
+
+	EndTriggerComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("EndTriggerComponent"));
+	EndTriggerComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	EndTriggerComponent->OnComponentBeginOverlap.AddDynamic(this, &AGrindRailSpline::OnEndReached);
 }
 
 void AGrindRailSpline::OnConstruction(const FTransform& Transform)
@@ -58,11 +70,10 @@ void AGrindRailSpline::OnConstruction(const FTransform& Transform)
 			SplineMeshComponent->SetStaticMesh(StartMeshDetails->Mesh);
 			SplineMeshComponent->SetForwardAxis(StartMeshDetails->ForwardAxis);
 		}
-		else if (EndMeshDetails && EndMeshDetails->Mesh && SplineCount == SplineComponent->GetNumberOfSplinePoints() - 1)
+		else if (EndMeshDetails && EndMeshDetails->Mesh && SplineCount == SplineComponent->GetNumberOfSplinePoints() - 2)
 		{
 			SplineMeshComponent->SetStaticMesh(EndMeshDetails->Mesh);
 			SplineMeshComponent->SetForwardAxis(EndMeshDetails->ForwardAxis);
-
 		}
 		else if(DefaultMeshDetails->Mesh) 
 		{
@@ -100,7 +111,24 @@ void AGrindRailSpline::OnConstruction(const FTransform& Transform)
 void AGrindRailSpline::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	Cart = GetWorld()->SpawnActor<AActor>(CartClass, Params);
+}
+
+void AGrindRailSpline::ProcessMovementTimeline(float Value)
+{
+	const float SplineLength = SplineComponent->GetSplineLength();
+
+	FVector CurrentSplineLocation = SplineComponent->GetLocationAtDistanceAlongSpline(Value * SplineLength, ESplineCoordinateSpace::World);
+	FRotator CurrentSplineRotator = SplineComponent->GetRotationAtDistanceAlongSpline(Value * SplineLength, ESplineCoordinateSpace::World);
+
+	if (MovementTimeline.IsReversing())
+	{
+		CurrentSplineRotator.Yaw += 180;
+	}
+	Cart->SetActorLocation(CurrentSplineLocation,false,nullptr,ETeleportType::TeleportPhysics);
+	Cart->SetActorRotation(CurrentSplineRotator);
 }
 
 // Called every frame
@@ -108,5 +136,72 @@ void AGrindRailSpline::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (MovementTimeline.IsPlaying())
+	{
+		MovementTimeline.TickTimeline(DeltaTime);
+	}
+}
+
+void AGrindRailSpline::OnEndReached(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (MovementTimeline.IsPlaying()) return;
+
+	Character = Cast<AMoronavirusCharacter>(OtherActor);
+
+	if (!Character) return;
+
+	Character->SetIsGrinding(true);
+
+	if (IsValid(Cart))
+	{
+		Character->AttachToActor(Cart, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		//Character->AddActorLocalOffset(FVector(0, 0, 550));
+	}
+
+	FOnTimelineFloat ProgressFunction;
+	ProgressFunction.BindUFunction(this, TEXT("ProcessMovementTimeline"));
+
+	MovementTimeline.AddInterpFloat(MovementCurve, ProgressFunction);
+
+	MovementTimeline.SetTimelineLengthMode(TL_LastKeyFrame);
+	MovementTimeline.ReverseFromEnd();
+}
+
+void AGrindRailSpline::OnStartReached(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (MovementTimeline.IsPlaying()) return;
+	
+	Character = Cast<AMoronavirusCharacter>(OtherActor);
+
+	if (!Character) return;
+
+
+	Character->SetIsGrinding(true);
+
+	if (IsValid(Cart))
+	{
+		Character->AttachToActor(Cart, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		//Character->AddActorLocalOffset(FVector(0, 0, 550));
+	}
+
+	FOnTimelineFloat ProgressFunction;
+	ProgressFunction.BindUFunction(this, TEXT("ProcessMovementTimeline"));
+
+
+	FOnTimelineEvent OnTimelineFinishedFunction;
+	OnTimelineFinishedFunction.BindUFunction(this, TEXT("OnEndMovementTimeline"));
+
+	MovementTimeline.AddInterpFloat(MovementCurve, ProgressFunction);
+	MovementTimeline.SetTimelineFinishedFunc(OnTimelineFinishedFunction);
+
+	MovementTimeline.SetTimelineLengthMode(TL_LastKeyFrame);
+	MovementTimeline.PlayFromStart();
+
+}
+
+void AGrindRailSpline::OnEndMovementTimeline()
+{
+	Character->SetIsGrinding(false);
+	Character->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 }
 

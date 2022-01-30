@@ -8,6 +8,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include <Sound/SoundCue.h>
+#include <../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h>
+#include <Components/AudioComponent.h>
+#include <../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
+#include <Kismet/GameplayStatics.h>
 
 //////////////////////////////////////////////////////////////////////////
 // AMoronavirusCharacter
@@ -47,6 +52,18 @@ AMoronavirusCharacter::AMoronavirusCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
+void AMoronavirusCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	if (GrindRailEffect)
+	{
+		GrindRailEffectComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(GrindRailEffect, GetMesh(), NAME_None, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true, true);
+		if (GrindRailEffectComponent)
+		{
+			GrindRailEffectComponent->SetVisibility(false);
+		}
+	}
+}
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -77,6 +94,12 @@ void AMoronavirusCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 }
 
 
+void AMoronavirusCharacter::SetIsGrinding(bool val)
+{
+	IsGrinding = val;
+	ActivateGrindEffects(val);
+}
+
 void AMoronavirusCharacter::OnResetVR()
 {
 	// If Moronavirus is added to a project via 'Add Feature' in the Unreal Editor the dependency on HeadMountedDisplay in Moronavirus.Build.cs is not automatically propagated
@@ -98,6 +121,33 @@ void AMoronavirusCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector 
 		StopJumping();
 }
 
+void AMoronavirusCharacter::ActivateGrindEffects(bool Activate)
+{
+	if (IsValid(GrindRailEffectComponent))
+	{
+		GrindRailEffectComponent->SetVisibility(Activate);
+	}
+
+	if (GrindRailSound)
+	{
+		if (!IsValid(AudioLoopComponent))
+		{
+			AudioLoopComponent = UGameplayStatics::SpawnSoundAttached(GrindRailSound, GetMesh(), NAME_None, FVector(ForceInit), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, false, 1.f, 1.f, 0.f, nullptr, nullptr, false);
+		}
+
+		if (IsValid(AudioLoopComponent))
+		{
+			if (Activate)
+			{
+				AudioLoopComponent->Play();
+			}
+			else {
+				AudioLoopComponent->Stop();
+			}
+		}
+	}
+}
+
 void AMoronavirusCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
@@ -112,6 +162,8 @@ void AMoronavirusCharacter::LookUpAtRate(float Rate)
 
 void AMoronavirusCharacter::MoveForward(float Value)
 {
+	if (IsGrinding) return;
+
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -126,6 +178,8 @@ void AMoronavirusCharacter::MoveForward(float Value)
 
 void AMoronavirusCharacter::MoveRight(float Value)
 {
+	if (IsGrinding) return;
+
 	if ( (Controller != nullptr) && (Value != 0.0f) )
 	{
 		// find out which way is right
