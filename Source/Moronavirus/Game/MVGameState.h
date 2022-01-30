@@ -11,16 +11,20 @@ class AMVGameState : public AGameState
 {
 	GENERATED_BODY()
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameFinished);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameStateChanged);
 
 public:
 	AMVGameState ();
 
 	void OnAllHospitalsDestroyed();
 	virtual void HandleMatchHasEnded() override;
+	virtual void HandleMatchHasStarted() override;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnGameFinished OnGameFinished;
+	FOnGameStateChanged OnGameStarted;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGameStateChanged OnGameFinished;
 
 	UFUNCTION(BlueprintPure)
 	bool IsInProgress() const { return bInProgress; }
