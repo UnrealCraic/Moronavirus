@@ -203,5 +203,9 @@ void AGrindRailSpline::OnEndMovementTimeline()
 {
 	Character->SetIsGrinding(false);
 	Character->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	FRotator ResetRot = Character->GetActorRotation();
+
+	ResetRot.Pitch = 0;
+	Character->SetActorRotation(ResetRot);
 }
 
