@@ -26,6 +26,9 @@ class AMoronavirusCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	class UNiagaraSystem* GrindRailEffect;
 
+	UPROPERTY(EditDefaultsOnly, Category = Weapons)
+	TSubclassOf<AActor> WeaponClass = nullptr;
+
 	class UNiagaraComponent* GrindRailEffectComponent;
 
 	class UAudioComponent* AudioLoopComponent;

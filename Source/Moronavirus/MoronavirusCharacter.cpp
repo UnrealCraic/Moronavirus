@@ -63,6 +63,22 @@ void AMoronavirusCharacter::BeginPlay()
 			GrindRailEffectComponent->SetVisibility(false);
 		}
 	}
+
+	if (WeaponClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
+		SpawnParams.Owner = this;
+
+		const FVector Location = GetActorLocation();
+		const FRotator Rotation = GetActorRotation();
+		if (AActor* SpawnedWeapon = GetWorld()->SpawnActor(WeaponClass, &Location, &Rotation, SpawnParams))
+		{
+			SpawnedWeapon->SetActorEnableCollision(false);
+			SpawnedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("RightHandWeaponSocket"));
+		}
+	}
 }
 //////////////////////////////////////////////////////////////////////////
 // Input
