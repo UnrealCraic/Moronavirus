@@ -119,7 +119,7 @@ void AGrindRailSpline::BeginPlay()
 void AGrindRailSpline::ProcessMovementTimeline(float Value)
 {
 
-	if (!Character->GetIsGrinding())
+	if (!Character || !Character->GetIsGrinding())
 	{
 		MovementTimeline.Stop();
 		return;
