@@ -40,6 +40,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
 	float FireRate = 60.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
+	float MuzzleVelocity = 600.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
+	bool bLimitedAmmo = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectiles, meta = (EditCondition = "bLimitedAmmo"))
+	int32 MaxAmmo = 100;
+
 	UPROPERTY(EditDefaultsOnly, Category = Detection)
 	class USphereComponent* DetectionArea = nullptr;
 
@@ -50,7 +59,5 @@ private:
 	float SecondsUntilNextShot = 0.0f;
 
 	int32 RemainingAmmo = 0;
-
-	int32 MaxAmmo = 100;
 };
 

@@ -6,13 +6,17 @@
 
 #include "Components/SphereComponent.h"
 #include "../AI/MVAICharacterBase.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Engine/World.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATurret
 
 AMVTurret::AMVTurret()
 {
-	PrimaryActorTick.bCanEverTick;
+	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	DetectionArea = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionArea"));
@@ -62,7 +66,7 @@ bool AMVTurret::CanFire() const
 		return false;
 	}
 
-	if (RemainingAmmo < 1)
+	if (bLimitedAmmo && RemainingAmmo < 1)
 	{
 		return false;
 	}
@@ -82,6 +86,8 @@ void AMVTurret::Deactivate()
 
 void AMVTurret::FindNewTarget()
 {
+	CurrentTarget = nullptr;
+
 	TArray<AActor*> OverlappingActors;
 	DetectionArea->GetOverlappingActors(OverlappingActors, AMVAICharacterBase::StaticClass());
 
@@ -110,16 +116,27 @@ void AMVTurret::FireAtTarget()
 	}
 
 	const FVector StartingLocation = GetActorLocation();
-	const FRotator StartingRotation = GetActorRotation();
+
+	const FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(StartingLocation, CurrentTarget->GetActorLocation());
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	AActor* SpawnedProjectile = GetWorld()->SpawnActor(ProjectileClass, &StartingLocation, &StartingRotation, SpawnParams);
+	FTransform SpawnTransform = FTransform(Rotation, StartingLocation);
+	AMVTurretProjectile* SpawnedProjectile = GetWorld()->SpawnActorDeferred<AMVTurretProjectile>(ProjectileClass, SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
 	if (SpawnedProjectile)
 	{
+		SpawnedProjectile->MovementComponent->InitialSpeed = MuzzleVelocity;
+		SpawnedProjectile->MovementComponent->MaxSpeed = MuzzleVelocity;
+
+		UGameplayStatics::FinishSpawningActor(SpawnedProjectile, SpawnTransform);
+
 		SecondsUntilNextShot = FireRate / 60.0f;
-		RemainingAmmo--;
+
+		if (bLimitedAmmo)
+		{
+			RemainingAmmo--;
+		}
 	}
 }

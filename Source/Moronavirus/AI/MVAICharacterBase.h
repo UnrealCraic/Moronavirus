@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "GameFramework/Character.h"
 #include "MVAICharacterBase.generated.h"
 
 UCLASS(BlueprintType, Blueprintable)
-class AMVAICharacterBase : public AActor
+class AMVAICharacterBase : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -26,8 +26,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetIsDead() const { return bIsDead; }
 
-private:
+protected:
 
+	UFUNCTION(BlueprintNativeEvent)
 	void Die();
 
 private:

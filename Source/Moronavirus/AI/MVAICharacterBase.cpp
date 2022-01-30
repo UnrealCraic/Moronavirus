@@ -28,7 +28,7 @@ float AMVAICharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent con
 	return CachedHealth - Health;
 }
 
-void AMVAICharacterBase::Die()
+void AMVAICharacterBase::Die_Implementation()
 {
 	bIsDead = true;
 }
