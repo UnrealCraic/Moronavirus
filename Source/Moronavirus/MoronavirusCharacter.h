@@ -44,6 +44,15 @@ public:
 
 	class AMVWeaponActor* GetCurrentWeapon() const { return CurrentWeapon; }
 
+	UFUNCTION(BlueprintCallable)
+	int32 GetMoney() const { return Money; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetMoney(int32 val) { Money = val; }
+
+	UFUNCTION(BlueprintCallable)
+	void AddMoney(int32 val) { Money += val; }
+
 protected:
 
 	/** Resets HMD orientation in VR. */
@@ -86,6 +95,8 @@ protected:
 protected:
 
 	bool IsGrinding = false;
+
+	int32 Money;
 
 public:
 	/** Returns CameraBoom subobject **/
