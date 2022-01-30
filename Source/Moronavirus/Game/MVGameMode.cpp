@@ -3,6 +3,7 @@
 #include "MVGameMode.h"
 
 #include "Moronavirus/Buildings/MVHospital.h"
+#include "Moronavirus/Turrets/MVTurret.h"
 #include "EngineUtils.h"
 #include "MVGameState.h"
 
@@ -24,6 +25,11 @@ void AMVGameMode::HandleMatchHasStarted()
 		Hospitals.Add(*ActorItr);
 		ActorItr->GetOnHealthDepleted().AddUObject(this, &ThisClass::OnHospitalHealthDepleted);
 	}
+
+	for (TActorIterator<AMVTurret> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		ActorItr->Activate();
+	}
 }
 
 void AMVGameMode::OnHospitalHealthDepleted()
@@ -37,7 +43,12 @@ void AMVGameMode::OnHospitalHealthDepleted()
 		{
 			MVGameState->OnAllHospitalsDestroyed();
 		}
-		
+
+		for (TActorIterator<AMVTurret> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+			ActorItr->Deactivate();
+		}
+
 		EndMatch();
 	}
 	/*if (AMVGameState* GameState = GetGameState<AMVGameState>())
