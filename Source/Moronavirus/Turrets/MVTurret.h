@@ -26,6 +26,15 @@ public:
 
 	bool CanFire() const;
 
+	UFUNCTION(BlueprintCallable)
+	int32 GetRemainingAmmo() {return RemainingAmmo;}
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetMaxAmmo() {return MaxAmmo;}
+
+	UFUNCTION(BlueprintCallable)
+	void Reload();
+
 private:
 
 	void FindNewTarget();
@@ -46,7 +55,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
 	bool bLimitedAmmo = false;
 
-	UPROPERTY(EditDefaultsOnly, Category = Projectiles, meta = (EditCondition = "bLimitedAmmo"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectiles, meta = (EditCondition = "bLimitedAmmo"))
 	int32 MaxAmmo = 100;
 
 	UPROPERTY(EditDefaultsOnly, Category = Detection)
@@ -59,5 +68,6 @@ private:
 	float SecondsUntilNextShot = 0.0f;
 
 	int32 RemainingAmmo = 0;
+
 };
 

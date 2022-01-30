@@ -74,6 +74,11 @@ bool AMVTurret::CanFire() const
 	return true;
 }
 
+void AMVTurret::Reload()
+{
+	RemainingAmmo = MaxAmmo;
+}
+
 void AMVTurret::Activate()
 {
 	SetActorTickEnabled(true);
