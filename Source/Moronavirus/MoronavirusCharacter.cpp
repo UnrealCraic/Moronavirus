@@ -88,7 +88,7 @@ void AMoronavirusCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMoronavirusCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMoronavirusCharacter::MoveForward);
@@ -175,6 +175,19 @@ void AMoronavirusCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AMoronavirusCharacter::Jump()
+{
+	if (IsGrinding)
+	{
+		SetIsGrinding(false);
+		DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		FRotator ResetRot = GetActorRotation();
+		ResetRot.Pitch = 0;
+		SetActorRotation(ResetRot);
+	}
+	Super::Jump();
 }
 
 void AMoronavirusCharacter::MoveForward(float Value)

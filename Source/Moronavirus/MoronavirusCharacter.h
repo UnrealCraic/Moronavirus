@@ -53,6 +53,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddMoney(int32 val) { Money += val; }
 
+	virtual void Jump() override;
+
 protected:
 
 	/** Resets HMD orientation in VR. */

@@ -118,6 +118,13 @@ void AGrindRailSpline::BeginPlay()
 
 void AGrindRailSpline::ProcessMovementTimeline(float Value)
 {
+
+	if (!Character->GetIsGrinding())
+	{
+		MovementTimeline.Stop();
+		return;
+	}
+
 	const float SplineLength = SplineComponent->GetSplineLength();
 
 	FVector CurrentSplineLocation = SplineComponent->GetLocationAtDistanceAlongSpline(Value * SplineLength, ESplineCoordinateSpace::World);
