@@ -42,6 +42,9 @@ public:
 	int32 NumAIToSpawnPerTick = 1;
 
 	UPROPERTY(EditDefaultsOnly, Category = Spawning)
+	int32 MaxNumAliveAI = 10;
+
+	UPROPERTY(EditDefaultsOnly, Category = Spawning)
 	TArray<TSubclassOf<class AMVAICharacterBase>> SpawnClasses;
 
 private:

@@ -6,6 +6,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "AI/NavigationSystemBase.h"
 #include "../Game/MVGameState.h"
+#include "Components/CapsuleComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMVAISpawner
@@ -63,6 +64,11 @@ bool AMVAISpawner::CanSpawn() const
 		return false;
 	}
 
+	if (SpawnedCharacters.Num() >= MaxNumAliveAI)
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -78,20 +84,32 @@ void AMVAISpawner::SpawnAI(int32 NumToSpawn)
 	FVector FoundLocation;
 	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 	bool bFoundLocation = NavSys->K2_GetRandomReachablePointInRadius(GetWorld(), GetActorLocation(), FoundLocation, MaxSpawnRadius);
+	
 	if (!bFoundLocation)
 	{
 		return;
 	}
 
+	FoundLocation.Z += 100.0f;
 	const FRotator SpawnRotation = GetActorRotation();
+	FTransform SpawnTransform = FTransform(SpawnRotation, FoundLocation);
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-	AActor* SpawnedAI = GetWorld()->SpawnActor(SpawnClasses[RandSpawnClassIndex], &FoundLocation, &SpawnRotation, SpawnParams);
-	if (AMVAICharacterBase* Character = Cast<AMVAICharacterBase>(SpawnedAI))
+	AMVAICharacterBase* SpawnedAI = GetWorld()->SpawnActorDeferred<AMVAICharacterBase>(SpawnClasses[RandSpawnClassIndex], SpawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+	if (SpawnedAI)
 	{
-		SpawnedCharacters.Add(Character);
+		FHitResult HitResult;
+		GetWorld()->LineTraceSingleByChannel(HitResult, SpawnedAI->GetActorLocation(), SpawnedAI->GetActorLocation() + (SpawnedAI->GetActorUpVector() * -150.0f), ECC_Visibility);
+
+		FTransform AdjustedTransform = FTransform(SpawnedAI->GetActorRotation(), SpawnedAI->GetActorLocation());
+
+		if (HitResult.bBlockingHit)
+		{
+			AdjustedTransform.SetLocation(HitResult.ImpactPoint + (SpawnedAI->GetActorUpVector() * SpawnedAI->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+		}		
+		
+		UGameplayStatics::FinishSpawningActor(SpawnedAI, AdjustedTransform);
+
+		SpawnedCharacters.Add(SpawnedAI);
 		TimeUntilNextTick = TimeBetweenTicks;
 	}
 }

@@ -21,6 +21,18 @@ AMVTurret::AMVTurret()
 
 	DetectionArea = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionArea"));
 	DetectionArea->InitSphereRadius(100.0f);
+
+	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
+	BaseMesh->SetupAttachment(DetectionArea);
+
+	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
+	BodyMesh->SetupAttachment(BaseMesh);
+
+	MuzzleLocation = CreateDefaultSubobject<USphereComponent>(TEXT("Muzzle"));
+	MuzzleLocation->SetupAttachment(BodyMesh);
+	MuzzleLocation->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+
 }
 void AMVTurret::BeginPlay()
 {
@@ -43,9 +55,23 @@ void AMVTurret::Tick(float DeltaSeconds)
 		SecondsUntilNextShot -= DeltaSeconds;
 	}
 
-	if (CanFire())
+	if (CurrentTarget)
 	{
-		FireAtTarget();
+		UpdateRotation(DeltaSeconds);
+
+		if (CanFire())
+		{
+			FireAtTarget();
+		}
+	}
+}
+
+void AMVTurret::UpdateRotation(float DeltaSeconds)
+{
+	if (CurrentTarget)
+	{
+		FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CurrentTarget->GetActorLocation());
+		BodyMesh->SetWorldRotation(Rotation);
 	}
 }
 
@@ -127,7 +153,7 @@ void AMVTurret::FireAtTarget()
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	FTransform SpawnTransform = FTransform(Rotation, StartingLocation);
+	FTransform SpawnTransform = FTransform(Rotation, MuzzleLocation->GetComponentLocation());
 	AMVTurretProjectile* SpawnedProjectile = GetWorld()->SpawnActorDeferred<AMVTurretProjectile>(ProjectileClass, SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
 	if (SpawnedProjectile)

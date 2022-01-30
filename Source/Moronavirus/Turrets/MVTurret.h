@@ -41,7 +41,18 @@ private:
 
 	void FireAtTarget();
 
+	void UpdateRotation(float DeltaSeconds);
+
 public:
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
+	class UStaticMeshComponent* BaseMesh = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
+	class UStaticMeshComponent* BodyMesh = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
+	class USphereComponent* MuzzleLocation = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
 	TSubclassOf<class AMVTurretProjectile> ProjectileClass = nullptr;
@@ -54,6 +65,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
 	bool bLimitedAmmo = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
+	float TurnRate = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectiles, meta = (EditCondition = "bLimitedAmmo"))
 	int32 MaxAmmo = 100;

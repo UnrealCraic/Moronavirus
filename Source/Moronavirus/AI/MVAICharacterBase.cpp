@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "MVAICharacterBase.h"
+#include "AIController.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMVAICharacterBase
@@ -31,4 +32,12 @@ float AMVAICharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent con
 void AMVAICharacterBase::Die_Implementation()
 {
 	bIsDead = true;
+
+	if (AAIController* AIController = GetController<AAIController>())
+	{
+		AIController->UnPossess();
+		AIController->Destroy();
+	}
+
+	SetLifeSpan(4.0f);
 }
