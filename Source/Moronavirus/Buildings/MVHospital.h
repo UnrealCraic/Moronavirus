@@ -28,11 +28,16 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetMaxHealth() const { return MaxHealth; }
 
+	UFUNCTION(BlueprintCallable)
+	FVector GetRandomAttackTargetFrom(const FVector& EnemyLocation);
+
 private:
 
 	void OnHealthDepleted();
 
 private:
+
+	TArray<FVector> TargetPoints;
 
 	FOnHealthDepleted HealthDepletedEvent;
 
