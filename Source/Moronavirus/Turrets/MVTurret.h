@@ -6,6 +6,18 @@
 #include "GameFramework/Actor.h"
 #include "MVTurret.generated.h"
 
+USTRUCT(BlueprintType)
+struct FTurretCosts
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float BuildCost = 100.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float AmmoCostPerBullet = 0.01f;
+};
+
 UCLASS(config=Game)
 class AMVTurret : public AActor
 {
@@ -68,6 +80,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
 	TSubclassOf<class AMVTurretProjectile> ProjectileClass = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Costs)
+	FTurretCosts Costs;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
 	float FireRate = 60.0f;
