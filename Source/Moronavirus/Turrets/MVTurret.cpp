@@ -10,6 +10,7 @@
 #include "Engine/World.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "../Game/MVGameState.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATurret
@@ -17,7 +18,7 @@
 AMVTurret::AMVTurret()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = false;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	DetectionArea = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionArea"));
 	DetectionArea->InitSphereRadius(100.0f);
@@ -44,6 +45,11 @@ void AMVTurret::BeginPlay()
 void AMVTurret::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if (GetIsBeingPlaced())
+	{
+		return;
+	}
 
 	if (!CurrentTarget || CurrentTarget->GetIsDead() || FVector::Distance(GetActorLocation(), CurrentTarget->GetActorLocation()) > DetectionArea->GetScaledSphereRadius())
 	{
@@ -73,6 +79,25 @@ void AMVTurret::UpdateRotation(float DeltaSeconds)
 		FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CurrentTarget->GetActorLocation());
 		BodyMesh->SetWorldRotation(Rotation);
 	}
+}
+
+void AMVTurret::FinishPlacement()
+{
+	bIsBeingPlaced = false;
+
+	OnPlaced();
+
+	if (AMVGameState* MVGameState = GetWorld()->GetGameState<AMVGameState>())
+	{
+		if (MVGameState->HasMatchStarted())
+		{
+			Activate();
+		}
+	}
+}
+
+void AMVTurret::OnPlaced_Implementation()
+{
 }
 
 bool AMVTurret::CanFire() const

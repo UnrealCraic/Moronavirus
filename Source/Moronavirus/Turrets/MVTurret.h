@@ -35,6 +35,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Reload();
 
+	UFUNCTION(BlueprintPure)
+	bool GetIsBeingPlaced() const { return bIsBeingPlaced; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetIsBeingPlaced(){ bIsBeingPlaced = true;}
+
+	UFUNCTION(BlueprintCallable)
+	void FinishPlacement();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnPlaced();
+
 private:
 
 	void FindNewTarget();
@@ -45,10 +57,10 @@ private:
 
 public:
 
-	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectiles)
 	class UStaticMeshComponent* BaseMesh = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectiles)
 	class UStaticMeshComponent* BodyMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
@@ -86,5 +98,6 @@ private:
 
 	int32 RemainingAmmo = 0;
 
+	bool bIsBeingPlaced = false;
 };
 
