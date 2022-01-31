@@ -186,6 +186,9 @@ void AMoronavirusCharacter::Jump()
 		FRotator ResetRot = GetActorRotation();
 		ResetRot.Pitch = 0;
 		SetActorRotation(ResetRot);
+
+		GetCharacterMovement()->AddImpulse(GetActorForwardVector() * 300000.0f);
+		
 	}
 	Super::Jump();
 }

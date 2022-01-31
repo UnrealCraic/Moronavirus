@@ -45,7 +45,7 @@ void AMVTurret::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (!CurrentTarget || CurrentTarget->GetIsDead())
+	if (!CurrentTarget || CurrentTarget->GetIsDead() || FVector::Distance(GetActorLocation(), CurrentTarget->GetActorLocation()) > DetectionArea->GetScaledSphereRadius())
 	{
 		FindNewTarget();
 	}
@@ -160,6 +160,7 @@ void AMVTurret::FireAtTarget()
 	{
 		SpawnedProjectile->MovementComponent->InitialSpeed = MuzzleVelocity;
 		SpawnedProjectile->MovementComponent->MaxSpeed = MuzzleVelocity;
+		SpawnedProjectile->SetDamage(Damage);
 
 		UGameplayStatics::FinishSpawningActor(SpawnedProjectile, SpawnTransform);
 

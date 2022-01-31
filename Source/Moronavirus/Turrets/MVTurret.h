@@ -67,6 +67,9 @@ public:
 	bool bLimitedAmmo = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
+	float Damage = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
 	float TurnRate = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectiles, meta = (EditCondition = "bLimitedAmmo"))

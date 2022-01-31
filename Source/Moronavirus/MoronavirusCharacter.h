@@ -55,6 +55,9 @@ public:
 
 	virtual void Jump() override;
 
+	UFUNCTION(BlueprintPure)
+	float GetGrindRailSpeed() const { return GrindRailSpeed; }
+
 protected:
 
 	/** Resets HMD orientation in VR. */
@@ -95,6 +98,9 @@ protected:
 
 
 protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = Grinding)
+	float GrindRailSpeed = 3.0f;
 
 	bool IsGrinding = false;
 

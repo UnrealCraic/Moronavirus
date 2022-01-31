@@ -8,7 +8,14 @@
 
 AMVAICharacterBase::AMVAICharacterBase()
 {
-	
+	Health = MaxHealth;
+}
+
+void AMVAICharacterBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	Health = MaxHealth;
 }
 
 float AMVAICharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
@@ -26,7 +33,7 @@ float AMVAICharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent con
 		Die();
 	}
 
-	return CachedHealth - Health;
+	return Super::TakeDamage(CachedHealth - Health, DamageEvent, EventInstigator, DamageCauser);
 }
 
 void AMVAICharacterBase::Die_Implementation()

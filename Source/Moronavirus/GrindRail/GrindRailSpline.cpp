@@ -6,6 +6,9 @@
 #include <Components/SplineComponent.h>
 #include "../MoronavirusCharacter.h"
 #include <Components/BoxComponent.h>
+#include "GameFramework/Character.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AGrindRailSpline::AGrindRailSpline()
@@ -127,8 +130,8 @@ void AGrindRailSpline::ProcessMovementTimeline(float Value)
 
 	const float SplineLength = SplineComponent->GetSplineLength();
 
-	FVector CurrentSplineLocation = SplineComponent->GetLocationAtDistanceAlongSpline(Value * SplineLength, ESplineCoordinateSpace::World);
-	FRotator CurrentSplineRotator = SplineComponent->GetRotationAtDistanceAlongSpline(Value * SplineLength, ESplineCoordinateSpace::World);
+	FVector CurrentSplineLocation = SplineComponent->GetLocationAtDistanceAlongSpline(Value * SplineLength * Character->GetGrindRailSpeed(), ESplineCoordinateSpace::World);
+	FRotator CurrentSplineRotator = SplineComponent->GetRotationAtDistanceAlongSpline(Value * SplineLength * Character->GetGrindRailSpeed(), ESplineCoordinateSpace::World);
 
 	if (MovementTimeline.IsReversing())
 	{
@@ -213,11 +216,15 @@ void AGrindRailSpline::OnStartReached(class UPrimitiveComponent* HitComp, class 
 
 void AGrindRailSpline::OnEndMovementTimeline()
 {
+	FVector PreviousVelocity = Cart->GetVelocity();
+
+	UE_LOG(LogTemp, Error, TEXT("Previous Velocity: %d  %d  %d"), PreviousVelocity.X, PreviousVelocity.Y, PreviousVelocity.Z);
 	Character->SetIsGrinding(false);
 	Character->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	FRotator ResetRot = Character->GetActorRotation();
 
 	ResetRot.Pitch = 0;
 	Character->SetActorRotation(ResetRot);
+	Character->GetCharacterMovement()->AddImpulse(Character->GetActorForwardVector() * EjectionImpulseStrength);
 }
 

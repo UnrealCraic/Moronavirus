@@ -19,5 +19,14 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = Movement)
 	class UProjectileMovementComponent* MovementComponent = nullptr;
+
+	UFUNCTION(BlueprintPure)
+	float GetDamage() const { return Damage; }
+
+	void SetDamage(const float InDamage) { Damage = InDamage; }
+
+private:
+
+	float Damage = 0.0f;
 };
 

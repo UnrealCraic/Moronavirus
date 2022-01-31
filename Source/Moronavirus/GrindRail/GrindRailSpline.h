@@ -72,6 +72,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spline")
 	UCurveFloat* MovementCurve;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spline")
+	float EjectionImpulseStrength = 150000.0f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Spline")
 	class UBoxComponent* StartTriggerComponent;
 
